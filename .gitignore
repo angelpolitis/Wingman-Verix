@@ -1,0 +1,11 @@
+### VisualStudioCode ###
+.vscode/*      # Maybe .vscode/**/* instead - see comments
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+**/.history
+
+/notes
+/cache
+/src/z_NOT_USED
