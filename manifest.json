@@ -1,0 +1,32 @@
+{
+    "name": "Wingman/Verix",
+    "version": "1.0.0",
+    "type": "library",
+    "description": "A versatile PHP type system for the Wingman framework, providing dynamic type handling, class registration, type class location, caching, and a flexible API for defining and managing types across applications.",
+    "authors": [
+        {
+            "name": "Angel Politis",
+            "email": "info@angelpolitis.com"
+        }
+    ],
+    "license": "MPL-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/angelpolitis/Wingman-Verix.git"
+    },
+    "homepage": "https://github.com/angelpolitis/Wingman-Verix",
+    "php": ">=8.1",
+    "dependencies": [
+        {
+            "package": "Wingman/Argus",
+            "version": ">=1.0",
+            "optional": true
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Wingman.Verix.": "src/",
+            "Wingman.Verix.Tests.": "tests/"
+        }
+    }
+}
