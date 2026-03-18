@@ -1,17 +1,21 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Primitive Definition
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 21 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Primitive Definition
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 21 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix namespace.
     namespace Wingman\Verix;
 
     # Import the following classes to the current scope.
     use Closure;
-    use RuntimeException;
+    use Wingman\Verix\Exceptions\InvalidParameterException;
     use Wingman\Verix\Specs\Parameter;
 
     /**
@@ -79,7 +83,7 @@
          * The positional parameter mapper function of a primitive type.
          * @var Closure|null
          */
-        public ?Closure $positionalParamMapper;
+        protected ?Closure $positionalParamMapper;
 
         /**
          * Creates a new primitive type definition.
@@ -117,18 +121,21 @@
                 }
                 else $this->parser = fn (...$args) => $parser(...$args);
             }
+            else $this->parser = null;
             if (!is_null($errorCallback)) {
                 if ($errorCallback instanceof Closure) {
                     $this->errorCallback = $errorCallback;
                 }
                 else $this->errorCallback = fn (...$args) => $errorCallback(...$args);
             }
+            else $this->errorCallback = null;
             if (!is_null($positionalParamMapper)) {
                 if ($positionalParamMapper instanceof Closure) {
                     $this->positionalParamMapper = $positionalParamMapper;
                 }
                 else $this->positionalParamMapper = fn (...$args) => $positionalParamMapper(...$args);
             }
+            else $this->positionalParamMapper = null;
 
             $params = [];
             foreach ($parameters as $param) {
@@ -166,7 +173,7 @@
 
                 foreach ($derived->hiddenParams as $param) {
                     if (array_key_exists($param, $mapped)) {
-                        throw new RuntimeException("Positional parameters cannot target '{$param}' for type {$derived->name}.");
+                        throw new InvalidParameterException("Positional parameters cannot target '{$param}' for type {$derived->name}.");
                     }
                 }
 

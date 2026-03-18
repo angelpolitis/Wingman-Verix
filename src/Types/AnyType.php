@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Any Type
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 23 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Any Type
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 23 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Types namespace.
     namespace Wingman\Verix\Types;
@@ -18,11 +22,12 @@
     class AnyType extends Type {
         /**
          * Creates a new any type.
+         * @param string $name The name of the type.
+         * @param array $parameters The parameters of the type.
+         * @param string|null $description The description of the type.
          */
-        public function __construct () {
-            $this->name = "any";
-            $this->description = "Any value.";
-            $this->parameters = [];
+        public function __construct (string $name = "any", array $parameters = [], ?string $description = "Any value.") {
+            parent::__construct($name, $parameters, $description);
         }
 
         /**

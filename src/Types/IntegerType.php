@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Integer Type
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 22 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Integer Type
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 22 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Types namespace.
     namespace Wingman\Verix\Types;
@@ -24,16 +28,14 @@
          * Creates a new integer type.
          */
         public function __construct () {
-            $this->name = "int";
-            $this->description = "An integer value.";
-            $this->parameters = [
+            $parameters = [
                 new Parameter(
                     name: "base",
                     type: "int",
                     default: 10,
                     constraint: fn (int $v) => $v >= 2 && $v <= 36,
                     constraintError: "The base must be between 2 and 36.",
-                    validator: fn (string $v, int $base) => $this->matchesBase($v, $base),
+                    validator: fn (int $v, int $base) => $this->matchesBase((string) $v, $base),
                     validatorError: "The value does not match the specified base."
                 ),
                 new Parameter(
@@ -53,7 +55,7 @@
                     type: "int",
                     constraint: fn (int $v) => $v >= 0,
                     constraintError: "The length must be a non-negative integer.",
-                    validator: fn (string $v, int $length) => strlen($v) === $length,
+                    validator: fn (int $v, int $length) => strlen((string) $v) === $length,
                     validatorError: "The value does not match the specified length."
                 ),
                 new Parameter(
@@ -61,7 +63,7 @@
                     type: "int",
                     constraint: fn (int $v) => $v >= 0,
                     constraintError: "The minimum length must be a non-negative integer.",
-                    validator: fn (string $v, int $minLength) => strlen($v) >= $minLength,
+                    validator: fn (int $v, int $minLength) => strlen((string) $v) >= $minLength,
                     validatorError: "The value is shorter than the specified minimum length."
                 ),
                 new Parameter(
@@ -69,7 +71,7 @@
                     type: "int",
                     constraint: fn (int $v) => $v >= 0,
                     constraintError: "The maximum length must be a non-negative integer.",
-                    validator: fn (string $v, int $maxLength) => strlen($v) <= $maxLength,
+                    validator: fn (int $v, int $maxLength) => strlen((string) $v) <= $maxLength,
                     validatorError: "The value exceeds the specified maximum length."
                 ),
                 new Parameter(
@@ -111,6 +113,7 @@
                     validatorError: "The integer must fit within the specified bit depth."
                 )
             ];
+            parent::__construct("int", $parameters, "An integer value.");
         }
 
         /**

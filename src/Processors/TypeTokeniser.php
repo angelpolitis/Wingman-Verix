@@ -1,16 +1,20 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Type Tokeniser
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 21 2025
-	 * Last Modified:   Dec 23 2025
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Type Tokeniser
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 21 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Processors namespace.
     namespace Wingman\Verix\Processors;
 
     # Import the following classes to the current scope.
-    use RuntimeException;
+    use Wingman\Verix\Exceptions\TokenisationException;
 
     /**
      * Tokenises type definition strings.
@@ -54,7 +58,7 @@
         }
         /**
          * Tokenises a tokeniser's input string into tokens.
-         * @throws RuntimeException If an unexpected character is encountered.
+         * @throws TokenisationException If an unexpected character is encountered.
          */
         protected function tokenise () : void {
             # 1) rest
@@ -67,14 +71,14 @@
                 ([a-zA-Z_][a-zA-Z0-9_.]*) |
                 (\d+\.\d+|\d+) |
                 ("[^"]*"|\'[^\']*\') |
-                ([<>{}\[\]():,|&=?@])
+                ([<>{}\[\]():,|&=?!@])
             )/x';
         
             $position = 0;
         
             while ($position < $this->length) {
                 if (!preg_match($pattern, $this->input, $m, 0, $position)) {
-                    throw new RuntimeException("Unexpected character '{$this->input[$position]}' at position {$position}");
+                    throw new TokenisationException("Unexpected character '{$this->input[$position]}' at position {$position}");
                 }
         
                 # (1) Extract the first non-empty capture.
@@ -87,7 +91,7 @@
                 }
         
                 if ($token === null) {
-                    throw new RuntimeException("Tokeniser error at position {$position}");
+                    throw new TokenisationException("Tokeniser error at position {$position}");
                 }
         
                 $this->tokens[] = $token;
@@ -103,12 +107,12 @@
         /**
          * Expects the next token to match a specific value.
          * @param string $value The expected token value.
-         * @throws RuntimeException If the next token does not match the expected value.
+         * @throws TokenisationException If the next token does not match the expected value.
          */
         public function expect (string $value) : void {
             $token = $this->next();
             if ($token !== $value) {
-                throw new RuntimeException("Expected '{$value}', got '{$token}'.");
+                throw new TokenisationException("Expected '{$value}', got '{$token}'.");
             }
         }
         

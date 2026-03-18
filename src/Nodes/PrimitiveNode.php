@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Primitive Node
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 21 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Primitive Node
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 21 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Nodes namespace.
     namespace Wingman\Verix\Nodes;
@@ -134,7 +138,7 @@
             }
             
             # (2) Coerce the value if the definition has a parser and strict mode is off.
-            $coerced = !$strict && ($definition->parser ?? null) ? $definition->parse($value, $params) : $value;
+            $coerced = !$strict && $definition->getParser() ? $definition->parse($value, $params) : $value;
         
             $result = $definition->validate($coerced, $params)->withPath($path);
             

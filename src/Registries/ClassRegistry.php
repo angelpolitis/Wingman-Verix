@@ -1,13 +1,21 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Class Registry
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 22 2025
-	 * Last Modified:   Feb 20 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Class Registry
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 22 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Registries namespace.
     namespace Wingman\Verix\Registries;
+
+    # Import the following classes to the current scope.
+    use Wingman\Verix\Bridge\Corvus\Emitter;
+    use Wingman\Verix\Enums\Signal;
 
     /**
      * Represents a registry for class aliases.
@@ -38,7 +46,7 @@
          * @param string $alias The alias to sanitise.
          * @return string The sanitised alias.
          */
-        protected static function sanitizeAlias (string $alias) : string {
+        protected static function sanitiseAlias (string $alias) : string {
             # Allow letters, numbers, underscores and dots.
             return preg_replace('/[^a-zA-Z0-9_.]/', "", $alias);
         }
@@ -50,9 +58,10 @@
          * @return static The registry instance for chaining.
          */
         public function register (string $alias, string $fqcn) : static {
-            $alias = self::sanitizeAlias($alias);
+            $alias = self::sanitiseAlias($alias);
             $fqcn = self::normaliseFQCN($fqcn);
             $this->classes[$alias] = $fqcn;
+            Emitter::create()->with(alias: $alias, fqcn: $fqcn, registry: $this)->emit(Signal::CLASS_REGISTERED);
             return $this;
         }
 

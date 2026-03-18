@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Struct Node
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 21 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Struct Node
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 21 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Nodes namespace.
     namespace Wingman\Verix\Nodes;
@@ -72,6 +76,7 @@
                     if ($field->isOptional()) continue;
                     if ($field->getDefault() !== null) {
                         $value[$name] = $field->getDefault();
+                        $usedKeys[$name] = true;
                         continue;
                     }
                     $result = $result->merge(ValidationResult::error("Struct missing required field", $field)->withPath($fieldPath));
@@ -124,8 +129,8 @@
             # Serialise the fixed fields of the struct.
             foreach ($this->fields as $name => $field) {
                 $part = $name;
-                if ($field->optional) $part .= '?';
-                $part .= ": " . $field->type->serialise();
+                if ($field->isOptional()) $part .= '?';
+                $part .= ": " . $field->getType()->serialise();
                 $parts[] = $part;
             }
         

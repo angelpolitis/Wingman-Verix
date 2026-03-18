@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Keyed Struct Node
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 21 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Keyed Struct Node
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 21 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Nodes namespace.
     namespace Wingman\Verix\Nodes;
@@ -41,6 +45,12 @@
         public readonly bool $keyOptional;
 
         /**
+         * Whether the dynamic keys of a struct are readonly.
+         * @var bool
+         */
+        public readonly bool $keyReadonly;
+
+        /**
          * Creates a new struct type.
          * @param array<string, StructField> $fields The fields of the struct.
          * @param bool $exact Whether the struct is exact (no extra fields allowed).
@@ -48,6 +58,7 @@
          * @param ?Node $keyType The type of the dynamic keys of the struct.
          * @param ?Node $valueType The type of the dynamic values of the struct.
          * @param bool $keyOptional Whether the existence of a dynamic key is optional.
+         * @param bool $keyReadonly Whether the dynamic keys of the struct are readonly.
          */
         public function __construct (
             array $fields = [],
@@ -55,12 +66,14 @@
             ?RestField $rest = null,
             ?Node $keyType = null,
             ?Node $valueType = null,
-            bool $keyOptional = false
+            bool $keyOptional = false,
+            bool $keyReadonly = false
         ) {
             parent::__construct($fields, $exact, $rest);
             $this->keyType = $keyType;
             $this->valueType = $valueType;
             $this->keyOptional = $keyOptional;
+            $this->keyReadonly = $keyReadonly;
         }
 
         /**
@@ -170,6 +183,14 @@
         }
 
         /**
+         * Checks whether the dynamic keys of a struct are readonly.
+         * @return bool Whether the dynamic keys are readonly.
+         */
+        public function isKeyReadonly () : bool {
+            return $this->keyReadonly;
+        }
+
+        /**
          * Serialises a keyed struct node to a string.
          * @return string The serialised keyed struct node.
          */
@@ -179,8 +200,8 @@
             # Serialise the fixed fields of the struct.
             foreach ($this->fields as $name => $field) {
                 $part = $name;
-                if ($field->optional) $part .= '?';
-                $part .= ": " . $field->type->serialise();
+                if ($field->isOptional()) $part .= '?';
+                $part .= ": " . $field->getType()->serialise();
                 $parts[] = $part;
             }
         
@@ -188,6 +209,7 @@
             if ($this->keyType && $this->valueType) {
                 $keyStr = $this->keyType->serialise();
                 if ($this->keyOptional) $keyStr .= "?";
+                if ($this->keyReadonly) $keyStr .= "!";
                 $parts[] = "[key: {$keyStr}]: {$this->valueType->serialise()}";
             }
 

@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Type
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 22 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Type
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 22 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Types namespace.
     namespace Wingman\Verix\Types;
@@ -23,19 +27,31 @@
          * The name of a type.
          * @var string
          */
-        public string $name;
+        public readonly string $name;
 
         /**
          * The parameters of a type.
          * @var array
          */
-        public array $parameters;
+        public readonly array $parameters;
 
         /**
          * The description of a type.
          * @var string|null
          */
-        public ?string $description;
+        public readonly ?string $description;
+
+        /**
+         * Initialises the type's immutable properties.
+         * @param string $name The name of the type.
+         * @param array $parameters The parameters of the type.
+         * @param string|null $description The description of the type.
+         */
+        public function __construct (string $name = "", array $parameters = [], ?string $description = null) {
+            $this->name = $name;
+            $this->parameters = $parameters;
+            $this->description = $description;
+        }
 
         /**
          * Handles an error during parsing or validation.

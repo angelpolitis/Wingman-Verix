@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Float Type
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 22 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Float Type
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 22 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Types namespace.
     namespace Wingman\Verix\Types;
@@ -24,9 +28,7 @@
          * Creates a new float type.
          */
         public function __construct () {
-            $this->name = "float";
-            $this->description = "A float value.";
-            $this->parameters = [
+            $parameters = [
                 new Parameter(
                     name: "min",
                     type: "float",
@@ -51,6 +53,7 @@
                     validatorError: "Float value must have at most {precision} decimal places."
                 )
             ];
+            parent::__construct("float", $parameters, "A float value.");
         }
 
         /**

@@ -1,16 +1,20 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Type Parser
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 21 2025
-	 * Last Modified:   Feb 20 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Type Parser
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 21 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Processors namespace.
     namespace Wingman\Verix\Processors;
 
     # Import the following classes to the current scope.
-    use RuntimeException;
+    use Wingman\Verix\Exceptions\ParsingException;
     use Wingman\Verix\Interfaces\Node;
     use Wingman\Verix\Nodes\AnyNode;
     use Wingman\Verix\Nodes\ArrayNode;
@@ -147,7 +151,7 @@
         /**
          * Parses a class or primitive type.
          * @return Node The parsed node.
-         * @throws RuntimeException If the type or class is unknown.
+         * @throws ParsingException If the type or class is unknown.
          */
         protected function parseClassOrPrimitive () : Node {
             $identifier = $this->tokeniser->next();
@@ -168,7 +172,7 @@
                 return new ClassNode($fqcn);
             }
 
-            throw new RuntimeException("Unknown type or class: {$identifier}");
+            throw new ParsingException("Unknown type or class: {$identifier}");
         }
 
         /**
@@ -299,7 +303,7 @@
                 $type = $this->parseStruct($token === '{');
             }
             elseif ($token === "Schema" || ($usingSymbol = $token === static::SCHEMA_SYMBOL)) {
-                $type = $this->parseSchemaRef($usingSymbol);
+                $type = $this->parseSchemaRef($usingSymbol ?? false);
             }
             elseif ($token === "enum") {
                 $type = $this->parseEnum();
@@ -333,7 +337,7 @@
                 $this->tokeniser->next();
 
                 if (sizeof($primitive->getParams()) === 0) {
-                    throw new RuntimeException("Primitive '{$name}' does not accept parameters.");
+                    throw new ParsingException("Primitive '{$name}' does not accept parameters.");
                 }
 
                 while (true) {
@@ -364,7 +368,7 @@
                 $this->tokeniser->next();
 
                 if (sizeof($primitive->getParams()) === 0) {
-                    throw new RuntimeException("Primitive '{$name}' does not accept parameters.");
+                    throw new ParsingException("Primitive '{$name}' does not accept parameters.");
                 }
             
                 # (a) Collect the positional values.
@@ -385,13 +389,13 @@
                 # (b) Delegate positional parameter interpretation to the primitive.
                 $positionalParamMapper = $primitive->getPositionalParamMapper();
                 if (!$positionalParamMapper) {
-                    throw new RuntimeException("Primitive '{$name}' does not support positional parameters.");
+                    throw new ParsingException("Primitive '{$name}' does not support positional parameters.");
                 }
             
                 $mapped = $positionalParamMapper($values);
             
                 if (!is_array($mapped)) {
-                    throw new RuntimeException("Invalid positional parameter mapping for '{$name}'.");
+                    throw new ParsingException("Invalid positional parameter mapping for '{$name}'.");
                 }
             
                 foreach ($mapped as $key => $value) {
@@ -402,7 +406,7 @@
             # (3) Check for unknown parameters.
             foreach ($params as $paramName => $paramValue) {
                 if (!$primitive->hasParam($paramName)) {
-                    throw new RuntimeException("Unknown parameter '{$paramName}' for primitive type '{$name}'.");
+                    throw new ParsingException("Unknown parameter '{$paramName}' for primitive type '{$name}'.");
                 }
             }
 
@@ -444,6 +448,7 @@
             $keyType = null;
             $valueType = null;
             $keyOptional = false;
+            $keyReadonly = false;
             $restType = null;
             $exact = true;
         
@@ -474,19 +479,20 @@
                     $this->tokeniser->next();
 
                     $keyOptional = false;
+                    $keyReadonly = false;
 
                     # (a) Check for optional key (e.g. [key?: type]).
                     if ($this->tokeniser->peek() === static::OPTIONAL_SYMBOL) {
                         $this->tokeniser->next();
                         $keyOptional = true;
                     }
-                    
+
                     # (b) Check for readonly key (e.g. [key!: type]).
                     if ($this->tokeniser->peek() === static::READONLY_SYMBOL) {
                         $this->tokeniser->next();
-                        $readonly = true;
+                        $keyReadonly = true;
                     }
-
+                    
                     # Dynamic keys require a type.
                     $this->tokeniser->expect(static::TYPE_SYMBOL);
 
@@ -503,9 +509,9 @@
                     # (d) Check for readonly key (e.g. [key: type]!).
                     if ($this->tokeniser->peek() === static::READONLY_SYMBOL) {
                         $this->tokeniser->next();
-                        $readonly = true;
+                        $keyReadonly = true;
                     }
-        
+
                     # A value type must follow.
                     $this->tokeniser->expect(static::TYPE_SYMBOL);
 
@@ -568,7 +574,8 @@
                     rest: $rest,
                     keyType: $keyType,
                     valueType: $valueType,
-                    keyOptional: $keyOptional
+                    keyOptional: $keyOptional,
+                    keyReadonly: $keyReadonly
                 );
             }
             return new StructNode(

@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Validation Result
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 21 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Validation Result
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 21 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix namespace.
     namespace Wingman\Verix;
@@ -113,10 +117,10 @@
          * @return static The merged validation result.
          */
         public function merge (self $other) : static {
-            if ($this->valid && $other->valid) {
-                return static::ok($this->value);
-            }
-            return new static($other->value ?? $this->value, false, array_merge($this->errors, $other->errors));
+            $valid = $this->valid && $other->valid;
+            $errors = array_merge($this->errors, $other->errors);
+            $metadata = array_merge($this->metadata, $other->metadata);
+            return new static($other->value, $valid, $errors, $metadata);
         }
         
         /**

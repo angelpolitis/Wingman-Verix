@@ -1,16 +1,22 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Schema Facade
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 21 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Schema Facade
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 21 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Facades namespace.
     namespace Wingman\Verix\Facades;
 
     # Import the following classes to the current scope.
-    use RuntimeException;
+    use Wingman\Verix\Bridge\Corvus\Emitter;
+    use Wingman\Verix\Enums\Signal;
+    use Wingman\Verix\Exceptions\SchemaException;
     use Wingman\Verix\Interfaces\Node;
     use Wingman\Verix\Nodes\ArrayNode;
     use Wingman\Verix\Nodes\IntersectionNode;
@@ -61,6 +67,7 @@
             $this->expression = $expression;
             $this->registry = static::getRegistry($registry);
             $this->node = static::parse($expression, $this->registry);
+            Emitter::create()->with(expression: $expression, schema: $this)->emit(Signal::SCHEMA_PARSED);
         }
 
         /**
@@ -138,21 +145,21 @@
          * @param Node $type The schema to expand.
          * @param Registry|string|null $registry The registry to use (optional).
          * @return Node The expanded schema.
-         * @throws RuntimeException If a schema reference cannot be resolved.
+         * @throws SchemaException If a schema reference cannot be resolved.
          */
         public static function expand (Node $type, Registry|string|null $registry = null) : Node {
             if ($type instanceof SchemaRefNode) {
                 $name = $type->getName();
                 $resolved = static::getRegistry($registry)->getSchemaRegistry()->get($name);
                 if (!$resolved) {
-                    throw new RuntimeException("Cannot expand unknown schema: {$name}");
+                    throw new SchemaException("Cannot expand unknown schema: {$name}");
                 }
                 return static::expand($resolved, $registry);
             }
 
             if ($type instanceof KeyedStructNode) {
                 $fixedFields = [];
-                foreach ($type->fields as $name => $field) {
+                foreach ($type->getFields() as $name => $field) {
                     $fixedFields[$name] = new StructField(
                         static::expand($field->getType(), $registry),
                         $field->isOptional(),
@@ -169,13 +176,14 @@
                         : null,
                     $type->getKeyType() ? static::expand($type->getKeyType(), $registry) : null,
                     $type->getValueType() ? static::expand($type->getValueType(), $registry) : null,
-                    $type->isKeyOptional()
+                    $type->isKeyOptional(),
+                    $type->isKeyReadonly()
                 );
             }
 
             if ($type instanceof StructNode) {
                 $fields = [];
-                foreach ($type->fields as $name => $field) {
+                foreach ($type->getFields() as $name => $field) {
                     $fields[$name] = new StructField(
                         static::expand($field->getType(), $registry),
                         $field->isOptional(),
@@ -235,10 +243,10 @@
 
         /**
          * Infers a schema from a set of data.
-         * @param iterable $data The data to infer the schema from.
+         * @param array $data The data to infer the schema from.
          * @return Schema The inferred schema.
          */
-        public static function infer (iterable $data) : Schema {
+        public static function infer (array $data) : Schema {
             if ($data === []) {
                 return Schema::from("{}");
             }
@@ -272,7 +280,7 @@
          * @param Schema|null $a The first schema.
          * @param Schema|null $b The second schema.
          * @return Schema|null The merged schema or `null` if both schemas are `null`.
-         * @throws RuntimeException If the schemata belong to different registries.
+         * @throws SchemaException If the schemata belong to different registries.
          */
         public static function merge (?self $a, ?self $b) : ?static {
             if (!$a && !$b) return null;
@@ -280,7 +288,7 @@
             if (!$b) return $a;
 
             if ($a->registry !== $b->registry) {
-                throw new RuntimeException("Cannot merge schemata from different registries.");
+                throw new SchemaException("Cannot merge schemata from different registries.");
             }
         
             $intersection = new IntersectionNode([
@@ -291,7 +299,7 @@
             $normaliser = new TypeNormaliser($a->registry->getSchemaRegistry());
             $normalised = $normaliser->normalise($intersection);
         
-            return new Schema($normalised, $a->registry);
+            return new static($normalised->serialise(), $a->registry);
         }
 
         /**
@@ -344,7 +352,9 @@
          * @return ValidationResult The validation result.
          */
         public function validate (mixed $value, bool $strict = false) : ValidationResult {
-            return $this->node->validate($value, $strict);
+            $result = $this->node->validate($value, $strict);
+            Emitter::create()->with(value: $value, result: $result, schema: $this)->emit(Signal::SCHEMA_VALIDATED);
+            return $result;
         }
     }
 ?>

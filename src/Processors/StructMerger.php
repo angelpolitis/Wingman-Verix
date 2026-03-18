@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Struct Merger
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 22 2025
-	 * Last Modified:   Dec 24 2025
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Struct Merger
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 22 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Processors namespace.
     namespace Wingman\Verix\Processors;
@@ -50,6 +54,7 @@
             $keyType = $a instanceof KeyedStructNode ? $a->getKeyType() : null;
             $valueType = $a instanceof KeyedStructNode ? $a->getValueType() : null;
             $keyOptional = $a instanceof KeyedStructNode ? $a->isKeyOptional() : false;
+            $keyReadonly = $a instanceof KeyedStructNode ? $a->isKeyReadonly() : false;
 
             if ($b instanceof KeyedStructNode && $b->getKeyType() && $b->getValueType()) {
                 # Merge the key types.
@@ -60,6 +65,9 @@
 
                 # The key must be optional if either is optional.
                 $keyOptional = $keyOptional || $b->isKeyOptional();
+
+                # The key is readonly if either side is readonly.
+                $keyReadonly = $keyReadonly || $b->isKeyReadonly();
             }
 
             # (3) Merge rest types if both structs have them.
@@ -83,6 +91,7 @@
                     keyType: $keyType,
                     valueType: $valueType,
                     keyOptional: $keyOptional,
+                    keyReadonly: $keyReadonly,
                     rest: $rest
                 );
             }

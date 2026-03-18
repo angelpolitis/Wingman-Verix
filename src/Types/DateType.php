@@ -1,10 +1,14 @@
 <?php
-    /*/
-	 * Project Name:    Wingman — Verix — Date Type
-	 * Created by:      Angel Politis
-	 * Creation Date:   Dec 23 2025
-	 * Last Modified:   Feb 19 2026
-    /*/
+    /**
+     * Project Name:    Wingman Verix - Date Type
+     * Created by:      Angel Politis
+     * Creation Date:   Dec 23 2025
+     * Last Modified:   Mar 18 2026
+     *
+     * Copyright (c) 2025-2026 Angel Politis <info@angelpolitis.com>
+     * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+     * If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+     */
 
     # Use the Verix.Types namespace.
     namespace Wingman\Verix\Types;
@@ -26,9 +30,7 @@
          * Creates a new date type.
          */
         public function __construct () {
-            $this->name = "date";
-            $this->description = "A date value.";
-            $this->parameters = [
+            $parameters = [
                 new Parameter(
                     name: "format",
                     type: "string",
@@ -104,6 +106,7 @@
                     # Validation logic handled during parsing
                 )
             ];
+            parent::__construct("date", $parameters, "A date value.");
         }
     
         /**
